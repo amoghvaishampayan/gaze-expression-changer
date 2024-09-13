@@ -2,6 +2,7 @@ import json
 import os
 import time
 import random
+import sys
 
 import gradio as gr
 import requests
@@ -102,38 +103,86 @@ def generate_image(input_image, reference_image, rotate_pitch, rotate_yaw, rotat
             return latest_image
 
         time.sleep(1)
-rotate_pitch = gr.Slider(minimum=-20, maximum=20, step=1, value = 0, label="Rotate head up and down")
-rotate_yaw = gr.Slider(minimum=-20, maximum=20, step=1, value = 0, label="Rotate head left and right")
-rotate_roll = gr.Slider(minimum=-20, maximum=20, step=1, value = 0, label="Rotate head sideways")
-blink = gr.Slider(minimum=-20, maximum=5, step=1, value = 0, label="Close eyes")
-eyebrow = gr.Slider(minimum=-10, maximum=15, step=1, value = 0, label="Move eyebrows")
-wink = gr.Slider(minimum=0, maximum=25, step=1, value = 0, label="Wink eye")
-pupil_y = gr.Slider(minimum=-15, maximum=15, step=1, value = 0, label="Move eyeballs up and down")
-pupil_x = gr.Slider(minimum=-15, maximum=15, step=1, value = 0, label="Move eyeball left and right")
-aaa = gr.Slider(minimum=-30, maximum=120, step=1, value = 0, label="Open mouth")
-eee = gr.Slider(minimum=-20, maximum=15, step=1, value = 0, label="Widen mouth")
-woo = gr.Slider(minimum=-20, maximum=15, step=1, value = 0, label="Circular mouth")
-smile = gr.Slider(minimum=-0.3, maximum=1.3, step=0.1, value = 0, label="Smile")
-src_ratio = gr.Slider(minimum=0, maximum=1, step=0.1, value = 1, label="Src ratio")
 
-input_image = gr.Image(label="Input Image", type="numpy")
-reference_image = gr.Image(label = "Reference image (optional)", type = "numpy")
 
-demo = gr.Interface(fn= generate_image, inputs=[input_image, reference_image, 
-                                                rotate_pitch, 
-                                                rotate_yaw,
-                                                rotate_roll, 
-                                                blink, 
-                                                eyebrow, 
-                                                wink, 
-                                                pupil_y, 
-                                                pupil_x, 
-                                                aaa, 
-                                                eee, 
-                                                woo, 
-                                                smile, 
-                                                src_ratio], outputs=["image"], live=True)
+# def reset_all(input_image, reference_image, rotate_pitch, rotate_yaw, rotate_roll, blink, eyebrow, wink, pupil_y, pupil_x, aaa, eee, woo, smile, src_ratio):
+#     """Reset all inputs and sliders to their default values."""
+#     # Return None for images and default values for sliders
+#     return None, None, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
+
+# def reset_sliders():
+#     """Reset only the sliders to their default values."""
+#     # Return default values in the order of the sliders
+#     return 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
+
+with gr.Blocks() as demo:
+    # Header Row: Title and Restart Button
+    with gr.Row():
+        title = gr.Markdown("# Dash Actor", elem_id="title")  # Title on the left
+        
+    gr.Markdown("---")  # Separator
+
+    with gr.Row():
+        input_image = gr.Image(label="Input Image", type="numpy")
+        reference_image = gr.Image(label = "Reference image (optional)", type = "numpy")
+
+    with gr.Row():    
+        with gr.Column():
+            rotate_pitch = gr.Slider(minimum=-20, maximum=20, step=1, value=0, label="Rotate head up and down")
+            rotate_yaw = gr.Slider(minimum=-20, maximum=20, step=1, value=0, label="Rotate head left and right")
+            rotate_roll = gr.Slider(minimum=-20, maximum=20, step=1, value=0, label="Rotate head sideways")
+            blink = gr.Slider(minimum=-20, maximum=5, step=1, value=0, label="Close eyes")
+        with gr.Column():
+            eyebrow = gr.Slider(minimum=-10, maximum=15, step=1, value=0, label="Move eyebrows")
+            wink = gr.Slider(minimum=0, maximum=25, step=1, value=0, label="Wink eye")
+            pupil_y = gr.Slider(minimum=-15, maximum=15, step=1, value=0, label="Move eyeballs up and down")
+            pupil_x = gr.Slider(minimum=-15, maximum=15, step=1, value=0, label="Move eyeball left and right")
+        with gr.Column():
+            aaa = gr.Slider(minimum=-30, maximum=120, step=1, value=0, label="Open mouth")
+            eee = gr.Slider(minimum=-20, maximum=15, step=1, value=0, label="Widen mouth")
+            woo = gr.Slider(minimum=-20, maximum=15, step=1, value=0, label="Circular mouth")
+            smile = gr.Slider(minimum=-0.3, maximum=1.3, step=0.1, value=0, label="Smile")
+            src_ratio = gr.Slider(minimum=0, maximum=1, step=0.1, value=1, label="Src ratio")
+
+    # with gr.Row():
+    #     reset_all = gr.Button("Reset all")
+    #     reset_sliders_button = gr.Button("Reset sliders")
+    #     reset_sliders_button.click(fn=reset_sliders, 
+    #                            inputs=None, 
+    #                            outputs=[rotate_pitch, rotate_yaw, rotate_roll, 
+    #                                     blink, eyebrow, wink, pupil_y, pupil_x, 
+    #                                     aaa, eee, woo, smile, src_ratio])
+
+    # Define the output image element
+    output_image = gr.Image(label="Output Image")
+
+    
+
+    # Bind change events to all inputs (images and sliders) to trigger the live update
+    input_elements = [input_image, reference_image, rotate_pitch, rotate_yaw, rotate_roll, 
+                      blink, eyebrow, wink, pupil_y, pupil_x, aaa, eee, woo, smile, src_ratio]
+    
+    for element in input_elements:
+        element.change(fn=generate_image, inputs=input_elements, outputs=[output_image])
+
+# Launch the app
+demo.launch()
+
+    # demo = gr.Interface(fn= generate_image, inputs=[input_image, reference_image, 
+    #                                                 rotate_pitch, 
+    #                                                 rotate_yaw,
+    #                                                 rotate_roll, 
+    #                                                 blink, 
+    #                                                 eyebrow, 
+    #                                                 wink, 
+    #                                                 pupil_y, 
+    #                                                 pupil_x, 
+    #                                                 aaa, 
+    #                                                 eee, 
+    #                                                 woo, 
+    #                                                 smile, 
+    #                                                 src_ratio], outputs=["image"], live=True)
 
 #slider.change(fn=generate_image, inputs=["text", slider], outputs=["image"])
 
-demo.launch()
+
