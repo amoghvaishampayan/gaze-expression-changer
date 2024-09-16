@@ -5,6 +5,7 @@ A gradio app that uses live portrait running on a comfy ui backend to change the
 1. Install ComfyUI
 2. Download the ComfyUI custom node [Advanced Live Portrait](https://github.com/PowerHouseMan/ComfyUI-AdvancedLivePortrait).
 3. Get the [live portrait models from here](https://huggingface.co/Kijai/LivePortrait_safetensors/tree/main)
+4. Put the white-bg.png file in the relative path of ComfyUI installation .../ComfyUI/input/gradioapp/white-bg.png . This file serves as placeholder input when the user removes the previous input and is going to upload a new one. Since the workflow triggers on every change, this prevents the comfy backend api from receiving a None input for the image and throwing an error.
 
 ## Input image*
 Upload an image containing a person's face whose gaze or expression you want to change. This is a mandatory field.
